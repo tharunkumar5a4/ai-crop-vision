@@ -2,11 +2,23 @@ import streamlit as st
 import numpy as np
 import cv2
 from tensorflow.keras import layers, models
+import os
+import gdown
 
 # --------------------------------------------------
 # PAGE CONFIG
 # --------------------------------------------------
 st.set_page_config(page_title="AI Crop Vision", layout="wide")
+
+# --------------------------------------------------
+# DOWNLOAD MODEL FROM GOOGLE DRIVE (FIRST RUN ONLY)
+# --------------------------------------------------
+MODEL_PATH = "leaf_disease_model.h5"
+
+if not os.path.exists(MODEL_PATH):
+    url = "https://drive.google.com/uc?id=1pN7n2UlbgTXGt8PvlvKvAlhEKcyNGS_D"
+    with st.spinner("🔄 Downloading AI model... please wait"):
+        gdown.download(url, MODEL_PATH, quiet=False)
 
 # --------------------------------------------------
 # ANIMATED GLASS UI CSS
@@ -108,7 +120,7 @@ st.session_state.language = st.sidebar.selectbox(
 )
 
 # --------------------------------------------------
-# MODEL (ARCHITECTURE MATCHES TRAINING)
+# MODEL LOADING
 # --------------------------------------------------
 @st.cache_resource
 def load_trained_model():
@@ -121,7 +133,7 @@ def load_trained_model():
         layers.Dense(64,activation='relu'),
         layers.Dense(3,activation='softmax')
     ])
-    model.load_weights("leaf_disease_model.h5")
+    model.load_weights(MODEL_PATH)
     return model
 
 model = load_trained_model()
